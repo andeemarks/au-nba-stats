@@ -102,9 +102,6 @@ const computeLeaders = (players: PlayerData[], mode: ViewMode): Map<number, Set<
   return result;
 };
 
-const SH = (props: { column: string; label: string; sortState: SortState; onSort: (c: string) => void; title?: string }) =>
-  <SortableHeader {...props} />;
-
 export const StatsTable = ({ players, mode, sortState, onSort }: StatsTableProps) => {
   const sorted = useMemo(() => sortPlayers(players, sortState, mode), [players, sortState, mode]);
   const leaders = useMemo(() => computeLeaders(players, mode), [players, mode]);
@@ -114,36 +111,32 @@ export const StatsTable = ({ players, mode, sortState, onSort }: StatsTableProps
       <table className="w-full text-gray-100 text-sm">
         <thead className="bg-gray-900 sticky top-0 z-10">
           <tr>
-            <th className="px-3 py-2 text-left text-xs font-semibold text-gray-400 uppercase tracking-wide cursor-pointer select-none hover:text-gray-200 whitespace-nowrap" onClick={() => onSort('name')}>
-              Player{sortState.column === 'name' ? (sortState.direction === 'asc' ? ' ▲' : ' ▼') : ''}
-            </th>
-            <th className="px-3 py-2 text-left text-xs font-semibold text-gray-400 uppercase tracking-wide cursor-pointer select-none hover:text-gray-200 whitespace-nowrap" onClick={() => onSort('record')}>
-              Record{sortState.column === 'record' ? (sortState.direction === 'asc' ? ' ▲' : ' ▼') : ''}
-            </th>
+            <SortableHeader column="name" label="Player" sortState={sortState} onSort={onSort} align="left" />
+            <SortableHeader column="record" label="Record" sortState={sortState} onSort={onSort} align="left" />
 
             {mode === 'lastGame' ? (
               <>
-                <SH column="date" label="Date" sortState={sortState} onSort={onSort} />
-                <SH column="matchup" label="Matchup" sortState={sortState} onSort={onSort} />
-                <SH column="result" label="Result" sortState={sortState} onSort={onSort} />
+                <SortableHeader column="date" label="Date" sortState={sortState} onSort={onSort} />
+                <SortableHeader column="matchup" label="Matchup" sortState={sortState} onSort={onSort} />
+                <SortableHeader column="result" label="Result" sortState={sortState} onSort={onSort} />
                 <th className="px-3 py-2 text-center text-xs font-semibold text-gray-400 uppercase tracking-wide">S/B</th>
               </>
             ) : mode === 'seasonAvg' ? (
-              <SH column="gp" label="GP" sortState={sortState} onSort={onSort} title="Games Played" />
+              <SortableHeader column="gp" label="GP" sortState={sortState} onSort={onSort} title="Games Played" />
             ) : null}
 
-            <SH column="min" label="MIN" sortState={sortState} onSort={onSort} title="Minutes" />
-            <SH column="pts" label="PTS" sortState={sortState} onSort={onSort} title="Points" />
-            <SH column="reb" label="REB" sortState={sortState} onSort={onSort} title="Rebounds" />
-            <SH column="ast" label="AST" sortState={sortState} onSort={onSort} title="Assists" />
-            <SH column="stl" label="STL" sortState={sortState} onSort={onSort} title="Steals" />
-            <SH column="blk" label="BLK" sortState={sortState} onSort={onSort} title="Blocks" />
-            <SH column="tov" label="TOV" sortState={sortState} onSort={onSort} title="Turnovers" />
-            <SH column="pf" label="PF" sortState={sortState} onSort={onSort} title="Personal Fouls" />
-            <SH column="pm" label="+/-" sortState={sortState} onSort={onSort} title="Plus/Minus" />
-            <SH column="fgPct" label="FG%" sortState={sortState} onSort={onSort} title="Field Goal %" />
-            <SH column="fg3Pct" label="3P%" sortState={sortState} onSort={onSort} title="3-Point %" />
-            <SH column="ftPct" label="FT%" sortState={sortState} onSort={onSort} title="Free Throw %" />
+            <SortableHeader column="min" label="MIN" sortState={sortState} onSort={onSort} title="Minutes" />
+            <SortableHeader column="pts" label="PTS" sortState={sortState} onSort={onSort} title="Points" />
+            <SortableHeader column="reb" label="REB" sortState={sortState} onSort={onSort} title="Rebounds" />
+            <SortableHeader column="ast" label="AST" sortState={sortState} onSort={onSort} title="Assists" />
+            <SortableHeader column="stl" label="STL" sortState={sortState} onSort={onSort} title="Steals" />
+            <SortableHeader column="blk" label="BLK" sortState={sortState} onSort={onSort} title="Blocks" />
+            <SortableHeader column="tov" label="TOV" sortState={sortState} onSort={onSort} title="Turnovers" />
+            <SortableHeader column="pf" label="PF" sortState={sortState} onSort={onSort} title="Personal Fouls" />
+            <SortableHeader column="pm" label="+/-" sortState={sortState} onSort={onSort} title="Plus/Minus" />
+            <SortableHeader column="fgPct" label="FG%" sortState={sortState} onSort={onSort} title="Field Goal %" />
+            <SortableHeader column="fg3Pct" label="3P%" sortState={sortState} onSort={onSort} title="3-Point %" />
+            <SortableHeader column="ftPct" label="FT%" sortState={sortState} onSort={onSort} title="Free Throw %" />
           </tr>
         </thead>
         <tbody>
