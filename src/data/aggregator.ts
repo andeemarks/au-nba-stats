@@ -6,62 +6,54 @@ const parseMinutesToDecimal = (minutes: string): number => {
   return (m ?? 0) + (s ?? 0) / 60;
 };
 
+type StatSums = {
+  minutes: number; points: number; rebounds: number; assists: number;
+  steals: number; blocks: number; turnovers: number; fouls: number;
+  plusMinus: number; fgm: number; fga: number; fg3m: number; fg3a: number;
+  ftm: number; fta: number;
+};
+
+const ZERO_SUMS: StatSums = {
+  minutes: 0, points: 0, rebounds: 0, assists: 0, steals: 0, blocks: 0,
+  turnovers: 0, fouls: 0, plusMinus: 0, fgm: 0, fga: 0, fg3m: 0, fg3a: 0, ftm: 0, fta: 0,
+};
+
+const addGame = (acc: StatSums, g: GameStats): StatSums => ({
+  minutes:   acc.minutes   + parseMinutesToDecimal(g.minutes),
+  points:    acc.points    + g.points,
+  rebounds:  acc.rebounds  + g.rebounds,
+  assists:   acc.assists   + g.assists,
+  steals:    acc.steals    + g.steals,
+  blocks:    acc.blocks    + g.blocks,
+  turnovers: acc.turnovers + g.turnovers,
+  fouls:     acc.fouls     + g.fouls,
+  plusMinus: acc.plusMinus + g.plusMinus,
+  fgm:  acc.fgm  + g.fgm,  fga:  acc.fga  + g.fga,
+  fg3m: acc.fg3m + g.fg3m, fg3a: acc.fg3a + g.fg3a,
+  ftm:  acc.ftm  + g.ftm,  fta:  acc.fta  + g.fta,
+});
+
 export const computeAverages = (games: GameStats[]): AverageStats => {
-  const count = games.length;
-  if (count === 0) {
-    return {
-      gamesPlayed: 0,
-      minutes: 0,
-      points: 0,
-      rebounds: 0,
-      assists: 0,
-      steals: 0,
-      blocks: 0,
-      turnovers: 0,
-      fouls: 0,
-      plusMinus: 0,
-      fgPct: 0,
-      fg3Pct: 0,
-      ftPct: 0,
-    };
-  }
-
-  const sum = games.reduce(
-    (acc, g) => ({
-      minutes: acc.minutes + parseMinutesToDecimal(g.minutes),
-      points: acc.points + g.points,
-      rebounds: acc.rebounds + g.rebounds,
-      assists: acc.assists + g.assists,
-      steals: acc.steals + g.steals,
-      blocks: acc.blocks + g.blocks,
-      turnovers: acc.turnovers + g.turnovers,
-      fouls: acc.fouls + g.fouls,
-      plusMinus: acc.plusMinus + g.plusMinus,
-      fgm: acc.fgm + g.fgm,
-      fga: acc.fga + g.fga,
-      fg3m: acc.fg3m + g.fg3m,
-      fg3a: acc.fg3a + g.fg3a,
-      ftm: acc.ftm + g.ftm,
-      fta: acc.fta + g.fta,
-    }),
-    { minutes: 0, points: 0, rebounds: 0, assists: 0, steals: 0, blocks: 0,
-      turnovers: 0, fouls: 0, plusMinus: 0, fgm: 0, fga: 0, fg3m: 0, fg3a: 0, ftm: 0, fta: 0 },
-  );
-
+  if (games.length === 0) return {
+    gamesPlayed: 0, minutes: 0, points: 0, rebounds: 0, assists: 0, steals: 0,
+    blocks: 0, turnovers: 0, fouls: 0, plusMinus: 0, fgPct: 0, fg3Pct: 0, ftPct: 0,
+  };
+  const n = games.length;
+  const s = games.reduce(addGame, ZERO_SUMS);
   return {
-    gamesPlayed: count,
-    minutes: sum.minutes / count,
-    points: sum.points / count,
-    rebounds: sum.rebounds / count,
-    assists: sum.assists / count,
-    steals: sum.steals / count,
-    blocks: sum.blocks / count,
-    turnovers: sum.turnovers / count,
-    fouls: sum.fouls / count,
-    plusMinus: sum.plusMinus / count,
-    fgPct: sum.fga > 0 ? sum.fgm / sum.fga : 0,
-    fg3Pct: sum.fg3a > 0 ? sum.fg3m / sum.fg3a : 0,
-    ftPct: sum.fta > 0 ? sum.ftm / sum.fta : 0,
+    gamesPlayed: n,
+    minutes:   s.minutes   / n,
+    points:    s.points    / n,
+    rebounds:  s.rebounds  / n,
+    assists:   s.assists   / n,
+    steals:    s.steals    / n,
+    blocks:    s.blocks    / n,
+    turnovers: s.turnovers / n,
+    fouls:     s.fouls     / n,
+    plusMinus: s.plusMinus / n,
+    fgPct:  s.fga  > 0 ? s.fgm  / s.fga  : 0,
+    fg3Pct: s.fg3a > 0 ? s.fg3m / s.fg3a : 0,
+    ftPct:  s.fta  > 0 ? s.ftm  / s.fta  : 0,
   };
 };
 
