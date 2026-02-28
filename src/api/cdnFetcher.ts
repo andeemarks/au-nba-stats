@@ -66,27 +66,21 @@ const parseMinutes = (iso: string): string => {
   return minsOnly ? `${minsOnly[1]}:00` : '0:00';
 };
 
+interface GameContext {
+  gameId: string;
+  gameDate: string;
+  matchup: string;
+  opponent: string;
+  result: 'W' | 'L';
+  teamScore: number;
+  opponentScore: number;
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const parsePlayerStats = (
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  player: any,
-  gameId: string,
-  gameDate: string,
-  matchup: string,
-  opponent: string,
-  result: 'W' | 'L',
-  teamScore: number,
-  opponentScore: number,
-): GameStats => {
+const parsePlayerStats = (player: any, ctx: GameContext): GameStats => {
   const s = player.statistics ?? {};
   return {
-    gameId,
-    gameDate,
-    matchup,
-    opponent,
-    result,
-    teamScore,
-    opponentScore,
+    ...ctx,
     starter: player.starter === 1 || player.starter === '1',
     minutes: parseMinutes(s.minutesCalculated ?? 'PT0M0.00S'),
     points: Number(s.points ?? 0),
@@ -145,11 +139,10 @@ export const fetchBoxscore = async (game: ScheduleGame): Promise<Map<number, Gam
       ? `${homeTricode} vs. ${awayTricode}`
       : `${awayTricode} @ ${homeTricode}`;
 
+    const ctx: GameContext = { gameId: game.gameId, gameDate: game.gameDate, matchup, opponent: oppTricode, result, teamScore, opponentScore: oppScore };
     return players.flatMap((p) => {
       const playerId = Number(p.personId);
-      return playerId
-        ? [[playerId, parsePlayerStats(p, game.gameId, game.gameDate, matchup, oppTricode, result, teamScore, oppScore)]]
-        : [];
+      return playerId ? [[playerId, parsePlayerStats(p, ctx)]] : [];
     });
   };
 
