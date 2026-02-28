@@ -7,10 +7,6 @@ const CDN_BASE = import.meta.env.DEV ? '/nba-cdn' : 'https://cdn.nba.com/static/
 const SCHEDULE_TTL_MS = 6 * 60 * 60 * 1000; // 6 hours
 const SCHEDULE_CACHE_KEY = 'nba_schedule_v2';
 
-// ---------------------------------------------------------------------------
-// Schedule
-// ---------------------------------------------------------------------------
-
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const parseScheduleGame = (raw: any): ScheduleGame => {
   const homeScore = Number(raw.homeTeam?.score ?? 0);
@@ -50,10 +46,6 @@ export const fetchSchedule = async (): Promise<ScheduleGame[]> => {
   cacheSet(SCHEDULE_CACHE_KEY, games);
   return games;
 };
-
-// ---------------------------------------------------------------------------
-// Boxscore
-// ---------------------------------------------------------------------------
 
 /** Parses ISO 8601 duration e.g. "PT35M56.00S" or "PT45M" → "35:56" or "45:00" */
 const parseMinutes = (iso: string): string => {

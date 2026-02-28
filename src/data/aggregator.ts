@@ -1,10 +1,6 @@
 import { REGULAR_SEASON_PREFIX } from '../config/players';
 import type { AverageStats, GameStats, ScheduleGame, TeamRecord } from '../types/nba';
 
-// ---------------------------------------------------------------------------
-// Averages
-// ---------------------------------------------------------------------------
-
 const parseMinutesToDecimal = (minutes: string): number => {
   const [m, s] = minutes.split(':').map(Number);
   return (m ?? 0) + (s ?? 0) / 60;
@@ -72,10 +68,6 @@ export const computeAverages = (games: GameStats[]): AverageStats => {
 export const computeLast5Averages = (games: GameStats[]): AverageStats =>
   computeAverages(games.slice(0, 5));
 
-// ---------------------------------------------------------------------------
-// Team record
-// ---------------------------------------------------------------------------
-
 export const computeTeamRecord = (teamId: number, schedule: ScheduleGame[]): TeamRecord =>
   schedule
     .filter(
@@ -94,10 +86,6 @@ export const computeTeamRecord = (teamId: number, schedule: ScheduleGame[]): Tea
       },
       { wins: 0, losses: 0 },
     );
-
-// ---------------------------------------------------------------------------
-// Player game extraction
-// ---------------------------------------------------------------------------
 
 export const extractPlayerGames = (
   playerId: number,
