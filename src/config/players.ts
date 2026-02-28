@@ -1,6 +1,7 @@
 import type { TrackedPlayer } from '../types/nba';
 
 export const SEASON = '2025-26';
+export const REGULAR_SEASON_PREFIX = '0022';
 
 // NBA.com team IDs
 const TEAM = {

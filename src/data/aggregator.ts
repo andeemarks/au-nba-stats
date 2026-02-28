@@ -1,3 +1,4 @@
+import { REGULAR_SEASON_PREFIX } from '../config/players';
 import type { AverageStats, GameStats, ScheduleGame, TeamRecord } from '../types/nba';
 
 // ---------------------------------------------------------------------------
@@ -79,7 +80,7 @@ export const computeTeamRecord = (teamId: number, schedule: ScheduleGame[]): Tea
   schedule
     .filter(
       (g) =>
-        g.gameId.startsWith('0022') &&
+        g.gameId.startsWith(REGULAR_SEASON_PREFIX) &&
         g.status === 'completed' &&
         (g.homeTeamId === teamId || g.awayTeamId === teamId),
     )
@@ -107,7 +108,7 @@ export const extractPlayerGames = (
   schedule
     .filter(
       (g) =>
-        g.gameId.startsWith('0022') &&
+        g.gameId.startsWith(REGULAR_SEASON_PREFIX) &&
         g.status === 'completed' &&
         (g.homeTeamId === teamId || g.awayTeamId === teamId),
     )

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { fetchBoxscore } from '../api/cdnFetcher';
-import { TRACKED_PLAYERS } from '../config/players';
+import { REGULAR_SEASON_PREFIX, TRACKED_PLAYERS } from '../config/players';
 import { computeAverages, computeLast5Averages, computeTeamRecord, extractPlayerGames } from '../data/aggregator';
 import type { GameStats, PlayerData, ScheduleGame } from '../types/nba';
 
@@ -31,7 +31,7 @@ export const usePlayerStats = (schedule: ScheduleGame[]): UsePlayerStatsResult =
 
     const relevantGames = schedule.filter(
       (g) =>
-        g.gameId.startsWith('0022') &&
+        g.gameId.startsWith(REGULAR_SEASON_PREFIX) &&
         g.status === 'completed' &&
         (trackedTeamIds.has(g.homeTeamId) || trackedTeamIds.has(g.awayTeamId)),
     );
