@@ -1,73 +1,42 @@
-# React + TypeScript + Vite
+# AU NBA Stats
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A client-side SPA tracking Australian NBA players through the current season. No backend — all data is fetched directly from NBA's public CDN and cached in `localStorage`.
 
-Currently, two official plugins are available:
+## Tech Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+| Technology | Role |
+|---|---|
+| React | UI framework |
+| TypeScript | Type safety |
+| Vite | Build tooling and dev server |
+| Tailwind CSS | Styling |
 
-## React Compiler
+See [`package.json`](./package.json) for dependency versions.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Features
 
-## Expanding the ESLint configuration
+- **Three view modes**: last game, last 5 game averages, full season averages
+- **Sortable columns**: click any column header to sort; click again to reverse
+- **Stat leaders**: top performer per stat is highlighted in each view
+- **Team records**: win/loss record shown per player
+- Game context per player: date, matchup, result, starter/bench status
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Data Source
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+Stats are fetched from `cdn.nba.com` static JSON — no API key required, CORS-friendly.
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+- **Schedule**: `https://cdn.nba.com/static/json/staticData/scheduleLeagueV2.json` (cached 6 hours)
+- **Boxscores**: `https://cdn.nba.com/static/json/liveData/boxscore/boxscore_{GAME_ID}.json` (cached indefinitely for completed games)
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+In development, requests are proxied through Vite (`/nba-cdn`) to satisfy CORS. In production builds the CDN is accessed directly.
+
+## Getting Started
+
+```bash
+npm install
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Configuration
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+Edit [`src/config/players.ts`](./src/config/players.ts) to change which players are tracked. Player IDs are NBA.com person IDs, visible in the URL on `nba.com/player/{id}`.
