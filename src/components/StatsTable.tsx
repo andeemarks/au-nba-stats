@@ -49,11 +49,64 @@ const sortPlayers = (players: PlayerData[], sortState: SortState, mode: ViewMode
     return sortState.direction === 'asc' ? cmp : -cmp;
   });
 
+// Columns where a higher value is better; tov and pf are lower-is-better.
+const STAT_COLS: { key: string; higherBetter: boolean }[] = [
+  { key: 'min', higherBetter: true },
+  { key: 'pts', higherBetter: true },
+  { key: 'reb', higherBetter: true },
+  { key: 'ast', higherBetter: true },
+  { key: 'stl', higherBetter: true },
+  { key: 'blk', higherBetter: true },
+  { key: 'tov', higherBetter: false },
+  { key: 'pf',  higherBetter: false },
+  { key: 'pm',  higherBetter: true },
+  { key: 'fgPct',  higherBetter: true },
+  { key: 'fg3Pct', higherBetter: true },
+  { key: 'ftPct',  higherBetter: true },
+];
+
+// Returns a map of playerId → set of stat column keys where that player leads.
+const computeLeaders = (players: PlayerData[], mode: ViewMode): Map<number, Set<string>> => {
+  const result = new Map<number, Set<string>>();
+
+  const hasData = (d: PlayerData) =>
+    mode === 'lastGame' ? d.games.length > 0 : d.seasonAverages.gamesPlayed > 0;
+
+  const eligible = players.filter(hasData);
+  if (eligible.length === 0) return result;
+
+  STAT_COLS.forEach(({ key, higherBetter }) => {
+    const vals = eligible.map((d) => ({
+      id: d.player.id,
+      val: sortValue(d, key, mode) as number,
+    }));
+
+    const sentinel = higherBetter ? -999 : Infinity;
+    const best = vals.reduce(
+      (acc, v) => (higherBetter ? Math.max(acc, v.val) : Math.min(acc, v.val)),
+      sentinel,
+    );
+
+    // Don't highlight a leader of 0 for lower-is-better stats (player may not have played)
+    if (!higherBetter && best <= 0) return;
+
+    vals
+      .filter((v) => v.val === best)
+      .forEach(({ id }) => {
+        if (!result.has(id)) result.set(id, new Set());
+        result.get(id)!.add(key);
+      });
+  });
+
+  return result;
+};
+
 const SH = (props: { column: string; label: string; sortState: SortState; onSort: (c: string) => void; title?: string }) =>
   <SortableHeader {...props} />;
 
 export const StatsTable = ({ players, mode, sortState, onSort }: StatsTableProps) => {
   const sorted = sortPlayers(players, sortState, mode);
+  const leaders = computeLeaders(players, mode);
 
   return (
     <div className="overflow-x-auto rounded-lg border border-gray-800">
@@ -94,7 +147,12 @@ export const StatsTable = ({ players, mode, sortState, onSort }: StatsTableProps
         </thead>
         <tbody>
           {sorted.map((data) => (
-            <PlayerRow key={data.player.id} data={data} mode={mode} />
+            <PlayerRow
+              key={data.player.id}
+              data={data}
+              mode={mode}
+              leadingStats={leaders.get(data.player.id) ?? new Set()}
+            />
           ))}
         </tbody>
       </table>
