@@ -127,9 +127,9 @@ export const StatsTable = ({ players, mode, sortState, onSort }: StatsTableProps
                 <SH column="result" label="Result" sortState={sortState} onSort={onSort} />
                 <th className="px-3 py-2 text-center text-xs font-semibold text-gray-400 uppercase tracking-wide">S/B</th>
               </>
-            ) : (
+            ) : mode === 'seasonAvg' ? (
               <SH column="gp" label="GP" sortState={sortState} onSort={onSort} title="Games Played" />
-            )}
+            ) : null}
 
             <SH column="min" label="MIN" sortState={sortState} onSort={onSort} title="Minutes" />
             <SH column="pts" label="PTS" sortState={sortState} onSort={onSort} title="Points" />

@@ -81,7 +81,7 @@ export const PlayerRow = ({ data, mode, leadingStats }: PlayerRowProps) => {
     <tr className="border-t border-gray-800 odd:bg-gray-900/20 hover:bg-blue-950/30 transition-colors">
       <td className="px-3 py-2 text-sm font-medium whitespace-nowrap">{player.name}</td>
       <td className="px-3 py-2 text-sm text-gray-400 whitespace-nowrap">{recordStr}</td>
-      <td className="px-3 py-2 text-sm text-gray-400 text-center">{avg.gamesPlayed}</td>
+      {mode === 'seasonAvg' && <td className="px-3 py-2 text-sm text-gray-400 text-center">{avg.gamesPlayed}</td>}
       <AverageStatCells avg={avg} leading={leadingStats} />
     </tr>
   );
