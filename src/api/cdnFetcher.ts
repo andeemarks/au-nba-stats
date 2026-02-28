@@ -95,6 +95,29 @@ const parsePlayerStats = (player: any, ctx: GameContext): GameStats => {
   };
 };
 
+interface MatchupContext {
+  homeTricode: string;
+  awayTricode: string;
+  game: ScheduleGame;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const playerEntries = (players: any[], teamScore: number, oppScore: number, isHome: boolean, ctx: MatchupContext): [number, GameStats][] => {
+  const result: 'W' | 'L' = teamScore > oppScore ? 'W' : 'L';
+  const oppTricode = isHome ? ctx.awayTricode : ctx.homeTricode;
+  const matchup = isHome
+    ? `${ctx.homeTricode} vs. ${ctx.awayTricode}`
+    : `${ctx.awayTricode} @ ${ctx.homeTricode}`;
+  const gameCtx: GameContext = {
+    gameId: ctx.game.gameId, gameDate: ctx.game.gameDate,
+    matchup, opponent: oppTricode, result, teamScore, opponentScore: oppScore,
+  };
+  return players.flatMap((p) => {
+    const playerId = Number(p.personId);
+    return playerId ? [[playerId, parsePlayerStats(p, gameCtx)]] : [];
+  });
+};
+
 /**
  * Fetches a boxscore and returns a map of playerId → GameStats.
  * Completed game boxscores are cached indefinitely.
@@ -114,33 +137,15 @@ export const fetchBoxscore = async (game: ScheduleGame): Promise<Map<number, Gam
 
   const homeScore = Number(g.homeTeam?.score ?? game.homeScore);
   const awayScore = Number(g.awayTeam?.score ?? game.awayScore);
-
-  const homeTricode: string = g.homeTeam?.teamTricode ?? '';
-  const awayTricode: string = g.awayTeam?.teamTricode ?? '';
-
-  const playerEntries = (
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    players: any[],
-    teamScore: number,
-    oppScore: number,
-    oppTricode: string,
-    isHome: boolean,
-  ): [number, GameStats][] => {
-    const result: 'W' | 'L' = teamScore > oppScore ? 'W' : 'L';
-    const matchup = isHome
-      ? `${homeTricode} vs. ${awayTricode}`
-      : `${awayTricode} @ ${homeTricode}`;
-
-    const ctx: GameContext = { gameId: game.gameId, gameDate: game.gameDate, matchup, opponent: oppTricode, result, teamScore, opponentScore: oppScore };
-    return players.flatMap((p) => {
-      const playerId = Number(p.personId);
-      return playerId ? [[playerId, parsePlayerStats(p, ctx)]] : [];
-    });
+  const ctx: MatchupContext = {
+    homeTricode: g.homeTeam?.teamTricode ?? '',
+    awayTricode: g.awayTeam?.teamTricode ?? '',
+    game,
   };
 
   const entries: [number, GameStats][] = [
-    ...playerEntries(g.homeTeam?.players ?? [], homeScore, awayScore, awayTricode, true),
-    ...playerEntries(g.awayTeam?.players ?? [], awayScore, homeScore, homeTricode, false),
+    ...playerEntries(g.homeTeam?.players ?? [], homeScore, awayScore, true, ctx),
+    ...playerEntries(g.awayTeam?.players ?? [], awayScore, homeScore, false, ctx),
   ];
 
   if (game.status === 'completed') {
