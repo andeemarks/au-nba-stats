@@ -1,4 +1,4 @@
-import type { AverageStats, PlayerData, ViewMode } from '../types/nba';
+import type { AverageStats, GameStats, PlayerData, ViewMode } from '../types/nba';
 import { fmtDate, fmtPct, fmtRecord, fmtStat } from '../utils/formatters';
 
 interface PlayerRowProps {
@@ -30,6 +30,23 @@ const AverageStatCells = ({ avg, leading }: { avg: AverageStats; leading: Set<st
   </>
 );
 
+const GameStatCells = ({ game, leading }: { game: GameStats; leading: Set<string> }) => (
+  <>
+    <StatCell value={game.minutes}            isLeader={leading.has('min')} />
+    <StatCell value={String(game.points)}     isLeader={leading.has('pts')} />
+    <StatCell value={String(game.rebounds)}   isLeader={leading.has('reb')} />
+    <StatCell value={String(game.assists)}    isLeader={leading.has('ast')} />
+    <StatCell value={String(game.steals)}     isLeader={leading.has('stl')} />
+    <StatCell value={String(game.blocks)}     isLeader={leading.has('blk')} />
+    <StatCell value={String(game.turnovers)}  isLeader={leading.has('tov')} />
+    <StatCell value={String(game.fouls)}      isLeader={leading.has('pf')} />
+    <StatCell value={String(game.plusMinus)}  isLeader={leading.has('pm')} />
+    <StatCell value={fmtPct(game.fgPct)}      isLeader={leading.has('fgPct')} />
+    <StatCell value={fmtPct(game.fg3Pct)}     isLeader={leading.has('fg3Pct')} />
+    <StatCell value={fmtPct(game.ftPct)}      isLeader={leading.has('ftPct')} />
+  </>
+);
+
 export const PlayerRow = ({ data, mode, leadingStats }: PlayerRowProps) => {
   const { player, games, seasonAverages, last5Averages, teamRecord } = data;
   const lastGame = games[0] ?? null;
@@ -42,18 +59,12 @@ export const PlayerRow = ({ data, mode, leadingStats }: PlayerRowProps) => {
 
       {mode === 'lastGame' && (
         <>
-          <td className="px-3 py-2 text-sm text-gray-400">
-            {lastGame ? fmtDate(lastGame.gameDate) : '—'}
-          </td>
-          <td className="px-3 py-2 text-sm text-gray-400 whitespace-nowrap">
-            {lastGame?.matchup ?? '—'}
-          </td>
+          <td className="px-3 py-2 text-sm text-gray-400">{lastGame ? fmtDate(lastGame.gameDate) : '—'}</td>
+          <td className="px-3 py-2 text-sm text-gray-400 whitespace-nowrap">{lastGame?.matchup ?? '—'}</td>
           <td className={`px-3 py-2 text-sm font-semibold ${lastGame?.result === 'W' ? 'text-green-400' : 'text-red-400'}`}>
             {lastGame ? `${lastGame.result} ${lastGame.teamScore}-${lastGame.opponentScore}` : '—'}
           </td>
-          <td className="px-3 py-2 text-sm text-center">
-            {lastGame ? (lastGame.starter ? 'S' : 'B') : '—'}
-          </td>
+          <td className="px-3 py-2 text-sm text-center">{lastGame ? (lastGame.starter ? 'S' : 'B') : '—'}</td>
         </>
       )}
 
@@ -61,28 +72,12 @@ export const PlayerRow = ({ data, mode, leadingStats }: PlayerRowProps) => {
         <td className="px-3 py-2 text-sm text-gray-400 text-center">{avg.gamesPlayed}</td>
       )}
 
-      {mode === 'lastGame' ? (
-        lastGame ? (
-          <>
-            <StatCell value={lastGame.minutes}           isLeader={leadingStats.has('min')} />
-            <StatCell value={String(lastGame.points)}    isLeader={leadingStats.has('pts')} />
-            <StatCell value={String(lastGame.rebounds)}  isLeader={leadingStats.has('reb')} />
-            <StatCell value={String(lastGame.assists)}   isLeader={leadingStats.has('ast')} />
-            <StatCell value={String(lastGame.steals)}    isLeader={leadingStats.has('stl')} />
-            <StatCell value={String(lastGame.blocks)}    isLeader={leadingStats.has('blk')} />
-            <StatCell value={String(lastGame.turnovers)} isLeader={leadingStats.has('tov')} />
-            <StatCell value={String(lastGame.fouls)}     isLeader={leadingStats.has('pf')} />
-            <StatCell value={String(lastGame.plusMinus)} isLeader={leadingStats.has('pm')} />
-            <StatCell value={fmtPct(lastGame.fgPct)}    isLeader={leadingStats.has('fgPct')} />
-            <StatCell value={fmtPct(lastGame.fg3Pct)}   isLeader={leadingStats.has('fg3Pct')} />
-            <StatCell value={fmtPct(lastGame.ftPct)}    isLeader={leadingStats.has('ftPct')} />
-          </>
-        ) : (
-          Array.from({ length: 12 }).map((_, i) => <StatCell key={i} value="—" />)
-        )
-      ) : (
-        <AverageStatCells avg={avg} leading={leadingStats} />
-      )}
+      {mode === 'lastGame'
+        ? lastGame
+          ? <GameStatCells game={lastGame} leading={leadingStats} />
+          : Array.from({ length: 12 }).map((_, i) => <StatCell key={i} value="—" />)
+        : <AverageStatCells avg={avg} leading={leadingStats} />
+      }
     </tr>
   );
 };
