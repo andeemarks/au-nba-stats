@@ -12,7 +12,7 @@ const SCHEDULE_CACHE_KEY = 'nba_schedule_v2';
 // ---------------------------------------------------------------------------
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const parseScheduleGame = (raw: any): ScheduleGame | null => {
+const parseScheduleGame = (raw: any): ScheduleGame => {
   const homeScore = Number(raw.homeTeam?.score ?? 0);
   const awayScore = Number(raw.awayTeam?.score ?? 0);
   const statusText: string = raw.gameStatusText ?? '';
@@ -44,7 +44,7 @@ export const fetchSchedule = async (): Promise<ScheduleGame[]> => {
   const games = gameDates.flatMap((dateEntry: unknown) => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const rawGames: unknown[] = (dateEntry as any).games ?? [];
-    return rawGames.map(parseScheduleGame).filter((g): g is ScheduleGame => g !== null);
+    return rawGames.map(parseScheduleGame);
   });
 
   cacheSet(SCHEDULE_CACHE_KEY, games);
