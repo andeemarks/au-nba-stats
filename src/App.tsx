@@ -5,9 +5,31 @@ import { ViewToggle } from './components/ViewToggle';
 import { SEASON } from './config/players';
 import { usePlayerStats } from './hooks/usePlayerStats';
 import { useSchedule } from './hooks/useSchedule';
-import type { SortState, ViewMode } from './types/nba';
+import type { PlayerData, SortState, ViewMode } from './types/nba';
 
 const DEFAULT_SORT: SortState = { column: 'name', direction: 'asc' };
+
+const ErrorBanner = ({ message }: { message: string }) => (
+  <div className="mb-4 px-4 py-3 bg-red-900/40 border border-red-700 rounded-lg text-red-300 text-sm">
+    {message}
+  </div>
+);
+
+const LoadedView = ({ mode, onModeChange, players, sortState, onSort, updating, progress }: {
+  mode: ViewMode; onModeChange: (m: ViewMode) => void;
+  players: PlayerData[]; sortState: SortState; onSort: (col: string) => void;
+  updating: boolean; progress: { loaded: number; total: number };
+}) => (
+  <>
+    <div className="mb-4 flex items-center justify-between gap-4 flex-wrap">
+      <ViewToggle mode={mode} onChange={onModeChange} />
+      {updating && progress.total > 0 && (
+        <p className="text-xs text-gray-500">Updating… {progress.loaded}/{progress.total}</p>
+      )}
+    </div>
+    <StatsTable players={players} mode={mode} sortState={sortState} onSort={onSort} />
+  </>
+);
 
 function App() {
   const [mode, setMode] = useState<ViewMode>('lastGame');
@@ -33,33 +55,11 @@ function App() {
           <h1 className="text-2xl font-bold tracking-tight">NBA Player Stats</h1>
           <p className="text-gray-400 text-sm mt-1">{SEASON} Season</p>
         </header>
-
-        {error && (
-          <div className="mb-4 px-4 py-3 bg-red-900/40 border border-red-700 rounded-lg text-red-300 text-sm">
-            {error}
-          </div>
-        )}
-
-        {isLoading ? (
-          <LoadingState loaded={progress.loaded} total={progress.total} />
-        ) : (
-          <>
-            <div className="mb-4 flex items-center justify-between gap-4 flex-wrap">
-              <ViewToggle mode={mode} onChange={setMode} />
-              {statsLoading && progress.total > 0 && (
-                <p className="text-xs text-gray-500">
-                  Updating… {progress.loaded}/{progress.total}
-                </p>
-              )}
-            </div>
-            <StatsTable
-              players={players}
-              mode={mode}
-              sortState={sortState}
-              onSort={handleSort}
-            />
-          </>
-        )}
+        {error && <ErrorBanner message={error} />}
+        {isLoading
+          ? <LoadingState loaded={progress.loaded} total={progress.total} />
+          : <LoadedView mode={mode} onModeChange={setMode} players={players} sortState={sortState} onSort={handleSort} updating={statsLoading} progress={progress} />
+        }
       </div>
     </div>
   );
