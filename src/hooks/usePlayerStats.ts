@@ -13,6 +13,22 @@ interface UsePlayerStatsResult {
 
 const BATCH_SIZE = 5;
 
+const assemblePlayerData = (
+  boxscoreMap: Map<string, Map<number, GameStats>>,
+  schedule: ScheduleGame[],
+  teamRecords: Map<number, { wins: number; losses: number }>,
+): PlayerData[] =>
+  TRACKED_PLAYERS.map((player) => {
+    const games = extractPlayerGames(player.id, player.teamId, schedule, boxscoreMap);
+    return {
+      player,
+      games,
+      seasonAverages: computeAverages(games),
+      last5Averages: computeLast5Averages(games),
+      teamRecord: teamRecords.get(player.teamId) ?? { wins: 0, losses: 0 },
+    };
+  });
+
 export const usePlayerStats = (schedule: ScheduleGame[]): UsePlayerStatsResult => {
   const [players, setPlayers] = useState<PlayerData[]>([]);
   const [loading, setLoading] = useState(false);
@@ -36,6 +52,11 @@ export const usePlayerStats = (schedule: ScheduleGame[]): UsePlayerStatsResult =
         (trackedTeamIds.has(g.homeTeamId) || trackedTeamIds.has(g.awayTeamId)),
     );
 
+    // Team records depend only on the schedule — compute once up front.
+    const teamRecords = new Map(
+      [...trackedTeamIds].map((teamId) => [teamId, computeTeamRecord(teamId, schedule)]),
+    );
+
     setProgress({ loaded: 0, total: relevantGames.length });
 
     const boxscoreMap = new Map<string, Map<number, GameStats>>();
@@ -54,19 +75,7 @@ export const usePlayerStats = (schedule: ScheduleGame[]): UsePlayerStatsResult =
         });
 
         setProgress({ loaded: Math.min(i + BATCH_SIZE, relevantGames.length), total: relevantGames.length });
-
-        const assembled = TRACKED_PLAYERS.map((player) => {
-          const games = extractPlayerGames(player.id, player.teamId, schedule, boxscoreMap);
-          return {
-            player,
-            games,
-            seasonAverages: computeAverages(games),
-            last5Averages: computeLast5Averages(games),
-            teamRecord: computeTeamRecord(player.teamId, schedule),
-          };
-        });
-
-        setPlayers(assembled);
+        setPlayers(assemblePlayerData(boxscoreMap, schedule, teamRecords));
       }
     };
 
