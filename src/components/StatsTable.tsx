@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import type { PlayerData, SortState, ViewMode } from '../types/nba';
 import { PlayerRow } from './PlayerRow';
 import { SortableHeader } from './SortableHeader';
@@ -105,8 +106,8 @@ const SH = (props: { column: string; label: string; sortState: SortState; onSort
   <SortableHeader {...props} />;
 
 export const StatsTable = ({ players, mode, sortState, onSort }: StatsTableProps) => {
-  const sorted = sortPlayers(players, sortState, mode);
-  const leaders = computeLeaders(players, mode);
+  const sorted = useMemo(() => sortPlayers(players, sortState, mode), [players, sortState, mode]);
+  const leaders = useMemo(() => computeLeaders(players, mode), [players, mode]);
 
   return (
     <div className="overflow-x-auto rounded-lg border border-gray-800">
