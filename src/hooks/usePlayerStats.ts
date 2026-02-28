@@ -62,7 +62,7 @@ export const usePlayerStats = (schedule: ScheduleGame[]): UsePlayerStatsResult =
             games,
             seasonAverages: computeAverages(games),
             last5Averages: computeLast5Averages(games),
-            teamRecord: computeTeamRecord(player.teamId, schedule, TRACKED_PLAYERS),
+            teamRecord: computeTeamRecord(player.teamId, schedule),
           };
         });
 

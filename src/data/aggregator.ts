@@ -1,4 +1,4 @@
-import type { AverageStats, GameStats, ScheduleGame, TeamRecord, TrackedPlayer } from '../types/nba';
+import type { AverageStats, GameStats, ScheduleGame, TeamRecord } from '../types/nba';
 
 // ---------------------------------------------------------------------------
 // Averages
@@ -75,55 +75,24 @@ export const computeLast5Averages = (games: GameStats[]): AverageStats =>
 // Team record
 // ---------------------------------------------------------------------------
 
-export const computeTeamRecord = (
-  teamId: number,
-  schedule: ScheduleGame[],
-  allPlayers: TrackedPlayer[],
-): TeamRecord => {
-  const completedGames = schedule.filter(
-    (g) => g.gameId.startsWith('0022') && g.status === 'completed' && (g.homeTeamId === teamId || g.awayTeamId === teamId),
-  );
-
-  const { wins, losses } = completedGames.reduce(
-    (acc, g) => {
-      const isHome = g.homeTeamId === teamId;
-      const teamScore = isHome ? g.homeScore : g.awayScore;
-      const oppScore = isHome ? g.awayScore : g.homeScore;
-      return teamScore > oppScore
-        ? { ...acc, wins: acc.wins + 1 }
-        : { ...acc, losses: acc.losses + 1 };
-    },
-    { wins: 0, losses: 0 },
-  );
-
-  // Rank within tracked teams in the same conference
-  const conference = allPlayers.find((p) => p.teamId === teamId)?.conference;
-  const conferenceTeamIds = [...new Set(allPlayers
-    .filter((p) => p.conference === conference)
-    .map((p) => p.teamId))];
-
-  const rank = conferenceTeamIds
-    .map((tid) => {
-      const tGames = schedule.filter(
-        (g) => g.gameId.startsWith('0022') && g.status === 'completed' && (g.homeTeamId === tid || g.awayTeamId === tid),
-      );
-      const { w } = tGames.reduce(
-        (acc, g) => {
-          const isHome = g.homeTeamId === tid;
-          const ts = isHome ? g.homeScore : g.awayScore;
-          const os = isHome ? g.awayScore : g.homeScore;
-          return ts > os ? { w: acc.w + 1, l: acc.l } : { w: acc.w, l: acc.l + 1 };
-        },
-        { w: 0, l: 0 },
-      );
-      const total = tGames.length;
-      return { tid, winPct: total > 0 ? w / total : 0 };
-    })
-    .sort((a, b) => b.winPct - a.winPct)
-    .findIndex((t) => t.tid === teamId) + 1;
-
-  return { wins, losses, conferenceRank: rank };
-};
+export const computeTeamRecord = (teamId: number, schedule: ScheduleGame[]): TeamRecord =>
+  schedule
+    .filter(
+      (g) =>
+        g.gameId.startsWith('0022') &&
+        g.status === 'completed' &&
+        (g.homeTeamId === teamId || g.awayTeamId === teamId),
+    )
+    .reduce(
+      (acc, g) => {
+        const teamScore = g.homeTeamId === teamId ? g.homeScore : g.awayScore;
+        const oppScore = g.homeTeamId === teamId ? g.awayScore : g.homeScore;
+        return teamScore > oppScore
+          ? { wins: acc.wins + 1, losses: acc.losses }
+          : { wins: acc.wins, losses: acc.losses + 1 };
+      },
+      { wins: 0, losses: 0 },
+    );
 
 // ---------------------------------------------------------------------------
 // Player game extraction

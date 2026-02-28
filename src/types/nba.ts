@@ -55,7 +55,6 @@ export interface AverageStats {
 export interface TeamRecord {
   wins: number;
   losses: number;
-  conferenceRank: number;
 }
 
 export interface PlayerData {
