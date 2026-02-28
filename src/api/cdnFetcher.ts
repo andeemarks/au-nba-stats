@@ -132,38 +132,35 @@ export const fetchBoxscore = async (game: ScheduleGame): Promise<Map<number, Gam
   const homeTricode: string = g.homeTeam?.teamTricode ?? '';
   const awayTricode: string = g.awayTeam?.teamTricode ?? '';
 
-  const map = new Map<number, GameStats>();
-
-  const addPlayers = (
+  const playerEntries = (
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     players: any[],
     teamScore: number,
     oppScore: number,
     oppTricode: string,
     isHome: boolean,
-  ) => {
+  ): [number, GameStats][] => {
     const result: 'W' | 'L' = teamScore > oppScore ? 'W' : 'L';
     const matchup = isHome
       ? `${homeTricode} vs. ${awayTricode}`
       : `${awayTricode} @ ${homeTricode}`;
 
-    players.forEach((p) => {
+    return players.flatMap((p) => {
       const playerId = Number(p.personId);
-      if (!playerId) return;
-      map.set(
-        playerId,
-        parsePlayerStats(p, game.gameId, game.gameDate, matchup, oppTricode, result, teamScore, oppScore),
-      );
+      return playerId
+        ? [[playerId, parsePlayerStats(p, game.gameId, game.gameDate, matchup, oppTricode, result, teamScore, oppScore)]]
+        : [];
     });
   };
 
-  addPlayers(g.homeTeam?.players ?? [], homeScore, awayScore, awayTricode, true);
-  addPlayers(g.awayTeam?.players ?? [], awayScore, homeScore, homeTricode, false);
+  const entries: [number, GameStats][] = [
+    ...playerEntries(g.homeTeam?.players ?? [], homeScore, awayScore, awayTricode, true),
+    ...playerEntries(g.awayTeam?.players ?? [], awayScore, homeScore, homeTricode, false),
+  ];
 
-  // Only cache completed games — live games may have partial data
   if (game.status === 'completed') {
-    cacheSet(cacheKey, [...map.entries()]);
+    cacheSet(cacheKey, entries);
   }
 
-  return map;
+  return new Map(entries);
 };
