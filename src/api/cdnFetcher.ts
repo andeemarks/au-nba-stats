@@ -1,7 +1,9 @@
 import type { GameStats, ScheduleGame } from '../types/nba';
 import { cacheGet, cacheGetWithTTL, cacheSet } from './cache';
 
-const CDN_BASE = 'https://cdn.nba.com/static/json';
+// In development, requests go through the Vite proxy (/nba-cdn → cdn.nba.com/static/json)
+// which adds the correct Origin header to satisfy the CDN's CORS policy.
+const CDN_BASE = import.meta.env.DEV ? '/nba-cdn' : 'https://cdn.nba.com/static/json';
 const SCHEDULE_TTL_MS = 6 * 60 * 60 * 1000; // 6 hours
 const SCHEDULE_CACHE_KEY = 'nba_schedule_v2';
 
@@ -53,13 +55,15 @@ export const fetchSchedule = async (): Promise<ScheduleGame[]> => {
 // Boxscore
 // ---------------------------------------------------------------------------
 
-/** Parses ISO 8601 duration "PT35M56.00S" → "35:56" */
+/** Parses ISO 8601 duration e.g. "PT35M56.00S" or "PT45M" → "35:56" or "45:00" */
 const parseMinutes = (iso: string): string => {
-  const match = iso.match(/PT(\d+)M([\d.]+)S/);
-  if (!match) return '0:00';
-  const mins = match[1];
-  const secs = Math.round(Number(match[2])).toString().padStart(2, '0');
-  return `${mins}:${secs}`;
+  const withSecs = iso.match(/PT(\d+)M([\d.]+)S/);
+  if (withSecs) {
+    const secs = Math.round(Number(withSecs[2])).toString().padStart(2, '0');
+    return `${withSecs[1]}:${secs}`;
+  }
+  const minsOnly = iso.match(/PT(\d+)M/);
+  return minsOnly ? `${minsOnly[1]}:00` : '0:00';
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -83,7 +87,7 @@ const parsePlayerStats = (
     result,
     teamScore,
     opponentScore,
-    starter: player.starter === '1',
+    starter: player.starter === 1 || player.starter === '1',
     minutes: parseMinutes(s.minutesCalculated ?? 'PT0M0.00S'),
     points: Number(s.points ?? 0),
     rebounds: Number(s.reboundsTotal ?? 0),
