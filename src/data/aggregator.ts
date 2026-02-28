@@ -81,7 +81,7 @@ export const computeTeamRecord = (
   allPlayers: TrackedPlayer[],
 ): TeamRecord => {
   const completedGames = schedule.filter(
-    (g) => g.status === 'completed' && (g.homeTeamId === teamId || g.awayTeamId === teamId),
+    (g) => g.gameId.startsWith('0022') && g.status === 'completed' && (g.homeTeamId === teamId || g.awayTeamId === teamId),
   );
 
   const { wins, losses } = completedGames.reduce(
@@ -105,7 +105,7 @@ export const computeTeamRecord = (
   const rank = conferenceTeamIds
     .map((tid) => {
       const tGames = schedule.filter(
-        (g) => g.status === 'completed' && (g.homeTeamId === tid || g.awayTeamId === tid),
+        (g) => g.gameId.startsWith('0022') && g.status === 'completed' && (g.homeTeamId === tid || g.awayTeamId === tid),
       );
       const { w } = tGames.reduce(
         (acc, g) => {
@@ -138,6 +138,7 @@ export const extractPlayerGames = (
   schedule
     .filter(
       (g) =>
+        g.gameId.startsWith('0022') &&
         g.status === 'completed' &&
         (g.homeTeamId === teamId || g.awayTeamId === teamId),
     )

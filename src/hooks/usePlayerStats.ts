@@ -31,6 +31,7 @@ export const usePlayerStats = (schedule: ScheduleGame[]): UsePlayerStatsResult =
 
     const relevantGames = schedule.filter(
       (g) =>
+        g.gameId.startsWith('0022') &&
         g.status === 'completed' &&
         (trackedTeamIds.has(g.homeTeamId) || trackedTeamIds.has(g.awayTeamId)),
     );
