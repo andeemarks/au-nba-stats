@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:api.balldontlie.io)",
+      "WebSearch",
+      "WebFetch(domain:nba.balldontlie.io)",
+      "WebFetch(domain:www.balldontlie.io)",
+      "WebFetch(domain:cdn.nba.com)",
+      "Bash(git:*)",
+      "Bash(cp:*)",
+      "Bash(npm install:*)",
+      "Bash(npm run:*)"
+    ]
+  }
+}
