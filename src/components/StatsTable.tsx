@@ -58,12 +58,12 @@ export const StatsTable = ({ players, mode, sortState, onSort }: StatsTableProps
   return (
     <div className="overflow-x-auto rounded-lg border border-gray-800">
       <table className="w-full text-gray-100 text-sm">
-        <thead className="bg-gray-900">
+        <thead className="bg-gray-900 sticky top-0 z-10">
           <tr>
-            <th className="px-3 py-2 text-left text-xs font-semibold text-gray-400 uppercase tracking-wide cursor-pointer select-none hover:text-gray-200" onClick={() => onSort('name')}>
+            <th className="px-3 py-2 text-left text-xs font-semibold text-gray-400 uppercase tracking-wide cursor-pointer select-none hover:text-gray-200 whitespace-nowrap" onClick={() => onSort('name')}>
               Player{sortState.column === 'name' ? (sortState.direction === 'asc' ? ' ▲' : ' ▼') : ''}
             </th>
-            <th className="px-3 py-2 text-left text-xs font-semibold text-gray-400 uppercase tracking-wide cursor-pointer select-none hover:text-gray-200" onClick={() => onSort('record')}>
+            <th className="px-3 py-2 text-left text-xs font-semibold text-gray-400 uppercase tracking-wide cursor-pointer select-none hover:text-gray-200 whitespace-nowrap" onClick={() => onSort('record')}>
               Record{sortState.column === 'record' ? (sortState.direction === 'asc' ? ' ▲' : ' ▼') : ''}
             </th>
 
