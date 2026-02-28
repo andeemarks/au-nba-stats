@@ -9,6 +9,11 @@ export const fmtRecord = (wins: number, losses: number, rank: number): string =>
 
 export const fmtDate = (dateStr: string): string => {
   const [year, month, day] = dateStr.split('-').map(Number);
-  const d = new Date(year, (month ?? 1) - 1, day);
-  return d.toLocaleDateString('en-AU', { day: 'numeric', month: 'short' });
+  const gameDate = new Date(year, (month ?? 1) - 1, day);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const diffDays = Math.round((today.getTime() - gameDate.getTime()) / 86_400_000);
+  if (diffDays === 0) return 'Today';
+  if (diffDays === 1) return 'Yesterday';
+  return `${diffDays} days ago`;
 };
