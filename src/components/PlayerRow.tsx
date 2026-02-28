@@ -34,7 +34,7 @@ export const PlayerRow = ({ data, mode, leadingStats }: PlayerRowProps) => {
   const { player, games, seasonAverages, last5Averages, teamRecord } = data;
   const lastGame = games[0] ?? null;
 
-  const recordStr = fmtRecord(teamRecord.wins, teamRecord.losses, teamRecord.conferenceRank);
+  const recordStr = fmtRecord(teamRecord.wins, teamRecord.losses);
 
   if (mode === 'lastGame') {
     return (

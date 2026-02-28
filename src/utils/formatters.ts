@@ -4,8 +4,8 @@ export const fmtPct = (value: number): string =>
 export const fmtStat = (value: number, decimals = 1): string =>
   value === 0 ? '0' : value.toFixed(decimals);
 
-export const fmtRecord = (wins: number, losses: number, rank: number): string =>
-  `${wins}-${losses} (#${rank})`;
+export const fmtRecord = (wins: number, losses: number): string =>
+  `${wins}-${losses}`;
 
 export const fmtDate = (dateStr: string): string => {
   const [year, month, day] = dateStr.split('-').map(Number);
