@@ -17,7 +17,6 @@ const sortValue = (data: PlayerData, column: string, mode: ViewMode): number | s
 
   const statMap: Record<string, number | string> = {
     name: player.name,
-    record: teamRecord.wins - teamRecord.losses,
     date: lastGame?.gameDate ?? '',
     matchup: lastGame?.matchup ?? '',
     result: lastGame ? (lastGame.result === 'W' ? 1 : 0) : -1,
@@ -103,7 +102,6 @@ const TableHead = ({ mode, sortState, onSort }: { mode: ViewMode; sortState: Sor
   <thead className="bg-gray-900 sticky top-0 z-10">
     <tr>
       <SortableHeader column="name" label="Player" sortState={sortState} onSort={onSort} align="left" />
-      <SortableHeader column="record" label="Record" sortState={sortState} onSort={onSort} align="left" />
 
       {mode === 'lastGame' ? (
         <>

@@ -80,15 +80,19 @@ export const PlayerRow = ({ data, mode, leadingStats }: PlayerRowProps) => {
     <tr className="border-t border-gray-800 odd:bg-gray-900/20 hover:bg-blue-950/30 transition-colors">
       <td className="px-3 py-2 text-sm font-medium whitespace-nowrap">
         <div className="flex items-center gap-2">
-          <img
-            src={`https://cdn.nba.com/logos/nba/${player.teamId}/global/L/logo.svg`}
-            alt={player.teamAbbr}
-            className="w-6 h-6 shrink-0"
-          />
+          <div className="relative group shrink-0">
+            <img
+              src={`https://cdn.nba.com/logos/nba/${player.teamId}/global/L/logo.svg`}
+              alt={player.teamAbbr}
+              className="w-6 h-6"
+            />
+            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 hidden group-hover:block whitespace-nowrap bg-gray-800 text-gray-200 text-xs rounded px-2 py-1 pointer-events-none z-20">
+              {fmtRecord(teamRecord.wins, teamRecord.losses)}
+            </div>
+          </div>
           {player.name}
         </div>
       </td>
-      <td className="px-3 py-2 text-sm text-gray-400 whitespace-nowrap">{fmtRecord(teamRecord.wins, teamRecord.losses)}</td>
 
       {mode === 'lastGame' && (
         <>
