@@ -114,7 +114,8 @@ const playerEntries = (players: any[], teamScore: number, oppScore: number, isHo
   };
   return players.flatMap((p) => {
     const playerId = Number(p.personId);
-    return playerId ? [[playerId, parsePlayerStats(p, gameCtx)]] : [];
+    const played = p.played === 1 || p.played === '1';
+    return playerId && played ? [[playerId, parsePlayerStats(p, gameCtx)]] : [];
   });
 };
 
