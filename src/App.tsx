@@ -7,7 +7,7 @@ import { usePlayerStats } from './hooks/usePlayerStats';
 import { useSchedule } from './hooks/useSchedule';
 import type { PlayerData, SortState, ViewMode } from './types/nba';
 
-const DEFAULT_SORT: SortState = { column: 'name', direction: 'asc' };
+const DEFAULT_SORT: SortState = { column: 'date', direction: 'desc' };
 
 const ErrorBanner = ({ message }: { message: string }) => (
   <div className="mb-4 px-4 py-3 bg-red-900/40 border border-red-700 rounded-lg text-red-300 text-sm">
