@@ -7,7 +7,7 @@ interface PlayerRowProps {
   leadingStats: Set<string>;
 }
 
-type Trend = { arrow: '↑' | '↓'; good: boolean } | null;
+type Trend = { arrow: '↑' | '↓' | '.'; good: boolean | null } | null;
 
 const minutesToDecimal = (minutes: string): number => {
   const [m, s] = minutes.split(':').map(Number);
@@ -18,13 +18,18 @@ const computeTrend = (gameVal: number, avgVal: number, higherBetter: boolean): T
   if (gameVal === 0) return null;
   if (gameVal > avgVal) return { arrow: '↑', good: higherBetter };
   if (gameVal < avgVal) return { arrow: '↓', good: !higherBetter };
-  return null;
+  return { arrow: '.', good: null };
+};
+
+const trendColor = (trend: Trend): string => {
+  if (!trend || trend.good === null) return 'text-gray-500';
+  return trend.good ? 'text-green-500' : 'text-red-400';
 };
 
 const StatCell = ({ value, isLeader, trend }: { value: string; isLeader?: boolean; trend?: Trend }) => (
   <td className={`px-3 py-2 text-right text-sm tabular-nums ${isLeader ? 'text-amber-300 font-semibold' : ''}`}>
     {isLeader ? <span className="inline-block bg-amber-900/40 rounded px-1">{value}</span> : value}
-    {trend && <span className={`text-xs ${trend.good ? 'text-green-500' : 'text-red-400'}`}>{trend.arrow}</span>}
+    {trend && <span className={`text-xs ${trendColor(trend)}`}>{trend.arrow}</span>}
   </td>
 );
 
