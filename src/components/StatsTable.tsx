@@ -68,15 +68,13 @@ const STAT_COLS: { key: string; higherBetter: boolean }[] = [
 
 // Returns a map of playerId → set of stat column keys where that player leads.
 const computeLeaders = (players: PlayerData[], mode: ViewMode): Map<number, Set<string>> => {
-  const result = new Map<number, Set<string>>();
-
   const hasData = (d: PlayerData) =>
     mode === 'lastGame' ? d.games.length > 0 : d.seasonAverages.gamesPlayed > 0;
 
   const eligible = players.filter(hasData);
-  if (eligible.length === 0) return result;
+  if (eligible.length === 0) return new Map();
 
-  STAT_COLS.forEach(({ key, higherBetter }) => {
+  const leaderEntries = STAT_COLS.flatMap(({ key, higherBetter }) => {
     const vals = eligible.map((d) => ({
       id: d.player.id,
       val: sortValue(d, key, mode) as number,
@@ -89,17 +87,16 @@ const computeLeaders = (players: PlayerData[], mode: ViewMode): Map<number, Set<
     );
 
     // Don't highlight a leader of 0 for lower-is-better stats (player may not have played)
-    if (!higherBetter && best <= 0) return;
+    if (!higherBetter && best <= 0) return [];
 
-    vals
-      .filter((v) => v.val === best)
-      .forEach(({ id }) => {
-        if (!result.has(id)) result.set(id, new Set());
-        result.get(id)!.add(key);
-      });
+    return vals.filter((v) => v.val === best).map(({ id }) => ({ id, key }));
   });
 
-  return result;
+  return leaderEntries.reduce((result, { id, key }) => {
+    if (!result.has(id)) result.set(id, new Set());
+    result.get(id)!.add(key);
+    return result;
+  }, new Map<number, Set<string>>());
 };
 
 const TableHead = ({ mode, sortState, onSort }: { mode: ViewMode; sortState: SortState; onSort: (col: string) => void }) => (
