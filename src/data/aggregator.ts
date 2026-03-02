@@ -1,7 +1,7 @@
 import { REGULAR_SEASON_PREFIX } from '../config/players';
 import type { AverageStats, GameStats, ScheduleGame, TeamRecord } from '../types/nba';
 
-const parseMinutesToDecimal = (minutes: string): number => {
+export const parseMinutesToDecimal = (minutes: string): number => {
   const [m, s] = minutes.split(':').map(Number);
   return (m ?? 0) + (s ?? 0) / 60;
 };

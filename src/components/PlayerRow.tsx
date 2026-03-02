@@ -1,3 +1,4 @@
+import { parseMinutesToDecimal } from '../data/aggregator';
 import type { AverageStats, GameStats, PlayerData, ViewMode } from '../types/nba';
 import { fmtDate, fmtPct, fmtRecord, fmtStat } from '../utils/formatters';
 
@@ -8,11 +9,6 @@ interface PlayerRowProps {
 }
 
 type Trend = { arrow: '↑' | '↓' | '.'; good: boolean | null } | null;
-
-const minutesToDecimal = (minutes: string): number => {
-  const [m, s] = minutes.split(':').map(Number);
-  return (m ?? 0) + (s ?? 0) / 60;
-};
 
 const computeTrend = (gameVal: number, avgVal: number, higherBetter: boolean): Trend => {
   if (gameVal === 0) return null;
@@ -55,7 +51,7 @@ const GameStatCells = ({ game, avg, leading }: { game: GameStats; avg: AverageSt
     computeTrend(gameVal, avgVal, higherBetter);
   return (
     <>
-      <StatCell value={game.minutes}            isLeader={leading.has('min')}    trend={t(minutesToDecimal(game.minutes), avg.minutes, true)} />
+      <StatCell value={game.minutes}            isLeader={leading.has('min')}    trend={t(parseMinutesToDecimal(game.minutes), avg.minutes, true)} />
       <StatCell value={String(game.points)}     isLeader={leading.has('pts')}    trend={t(game.points, avg.points, true)} />
       <StatCell value={String(game.rebounds)}   isLeader={leading.has('reb')}    trend={t(game.rebounds, avg.rebounds, true)} />
       <StatCell value={String(game.assists)}    isLeader={leading.has('ast')}    trend={t(game.assists, avg.assists, true)} />
